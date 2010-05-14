@@ -1,0 +1,25 @@
+gem install loompa
+
+A library for managing forks
+
+The mother process spawns a fork and opens an io from the child to the parent and vice versa.
+If the mother process dies, the children commit suicide. They also accept HUP and INT calls and die then as well.
+
+Used like so,
+
+loompa = Loompa.start(num_of_childs, Logger)
+loompa.start do
+  sleep 10
+  puts "hey!!!"
+end
+
+The above code will continuously print "hey!!!". Once the child process has slept 10 seconds and printed "hey!!!" it will die and the mother process will start another to replace it.
+You can start this in a thread if you'd like to have control back after spawning the children.
+Thread.new do
+  loompa.start do
+    ...
+  end
+end
+
+Have fun and enjoy :]
+
