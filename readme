@@ -21,5 +21,13 @@ Thread.new do
   end
 end
 
+If you have to change the number of max forks loompa should spawn, it can be done
+loompa = Loompa.start(num_of_childs, Logger)
+loompa.start do
+  loompa.max_forks = new_num_of_childs
+  sleep 10
+  ...do something...
+end
+
 Have fun and enjoy :]
 

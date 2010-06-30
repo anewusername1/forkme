@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-Echoe.new('loompa', '0.0.1') do |p|
+Echoe.new('loompa', '0.0.2') do |p|
   p.description    = "Manage a fork pool"
   p.url            = "http://github.com/pmamediagroup/loompa"
   p.author         = "Tracey Eubanks"
