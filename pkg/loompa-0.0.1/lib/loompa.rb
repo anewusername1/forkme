@@ -105,7 +105,7 @@ class Loompa
     end
   end
   
-  attr_writer :on_child_start, :on_child_exit
+  attr_writer :on_child_start, :on_child_exit, :max_forks
   attr_accessor :max_servers, :handle_signal
   
   class << self
@@ -117,7 +117,7 @@ class Loompa
       @logger = log_meth
     end
   end
-   
+  
   def initialize(forks_to_run, port, log_method = DefaultLogger)
     @handle_signal = false
     @min_forks = 1
