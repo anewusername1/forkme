@@ -80,7 +80,7 @@ class Loompa
         when "connect" then @status = :connect
         when "disconnect" then @status = :idle
         else
-          $stderr.puts "unknown status: #{s}"
+          Loompa.logger.error "unknown status: #{s}"
         end
       end
     end
@@ -106,8 +106,9 @@ class Loompa
   end
   
   attr_writer :on_child_start, :on_child_exit, :max_forks
-  attr_accessor :max_servers, :handle_signal
   
+  # These class methods actually set up the logger that's used
+  # to print out useful information
   class << self
     def logger
       @logger
@@ -118,24 +119,29 @@ class Loompa
     end
   end
   
-  def initialize(forks_to_run, port, log_method = DefaultLogger)
-    @handle_signal = false
+  def initialize(forks_to_run, log_method = DefaultLogger)
     @min_forks = 1
     @max_forks = forks_to_run
-    @port = port
-    @child_count = 0
     Loompa.logger = log_method
   end
   
+  # class variable holding all the children
   @@children = Children.new
   
+  # A block to be executed just before calling the block a child
+  # will be executing
+  #
+  # [block] block The block that will be executed
   def on_child_start(&block)
     if block == nil then
       raise "block required"
     end
     @on_child_start = block
   end
-
+  
+  # A block to be executed upon exiting a child process.
+  #
+  # [block] block The block that will be executed upon termination of a child process
   def on_child_exit(&block)
     if block == nil then
       raise "block required"
@@ -143,6 +149,9 @@ class Loompa
     @on_child_exit = block
   end
   
+  # Starts the child processes, the number of which is determined by the @max_forks variable
+  #
+  # [block] &block The block that will be executed by the child processes
   def start(&block)
     if block == nil then
       raise "block required"
@@ -183,37 +192,39 @@ class Loompa
     @flag = :out_of_loop
     terminate
   end
-  
-  def close()
-    if @flag != :out_of_loop then
-      raise "close() must be called out of start() loop"
-    end
-    @socks.each do |s|
-      s.close
-    end
-  end
 
+  # sets the @flag to :exit_loop, essentially stopping the parent and child processes
+  # since the loop will die and all children will receive the close() call
   def stop()
     @flag = :exit_loop
   end
 
+  # Calls the close method on each child which sets its status to :closed
   def terminate()
+    raise "Cannot terminate while still in the loop" if @flag == :in_loop
     @@children.each do |c|
       c.close
     end
   end
 
+  # Sends the TERM signal to all child processes via their pids
   def interrupt()
     Process.kill "TERM", *(@@children.pids) rescue nil
   end
 
   private
-  
+
+  # called by the child process when it's finished the block passed to it
   def exit_child
-    #Loompa.logger.debug "c: exiting"
+    @on_child_exit.call if defined? @on_child_exit
     exit!
   end
 
+  # Creates a child process and tells that process to execute a block
+  # It also sets up the to and from pipes to be shared between the 
+  # parent and child processes.
+  #
+  # [block] block The block to be executed by the child
   def make_child(block)
     #Loompa.logger.debug "p: make child"
     to_child = IO.pipe
@@ -235,8 +246,14 @@ class Loompa
     to_parent[1].close
   end
   
+  # Method to call the block that's been passed to it
+  #
+  # [block] the block that will be called within the child process
   def child(block)
     #Loompa.logger.debug "c: start"
+    # Handle these different signals the child might encounter
+    # This signal trapping actually does get handled within the child
+    #    since it's called from within the fork method
     handle_signals(["TERM", "INT", "HUP"])
     @on_child_start.call if defined? @on_child_start
     #Loompa.logger.debug "c: connect from client"
@@ -252,6 +269,9 @@ class Loompa
     exit_child
   end
   
+  # Creates signal traps for the array of signals passed to it
+  #
+  # [Array] sigs The signals that will be trapped
   def handle_signals(sigs)
     sigs.each do |signal|
       trap(signal) { exit_child }
