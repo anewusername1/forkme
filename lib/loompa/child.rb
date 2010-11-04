@@ -16,7 +16,12 @@ class Child < Loompa
       when "connect" then @status = :connect
       when "disconnect" then @status = :idle
       else
-        Loompa.logger.error "unknown status: #{s}"
+        begin
+          Loompa.logger.error "unknown status: #{s}"
+        rescue NoMethodError
+        end
+        
+        return "unknown status: #{s}"
       end
     end
   end
