@@ -1,4 +1,4 @@
-require 'spec_helper.rb'
+require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
 describe "Loompa" do
   describe "self.logger" do
