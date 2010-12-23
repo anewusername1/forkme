@@ -30,9 +30,7 @@ class Forkpool
   #
   # [block] block The block that will be executed
   def on_child_start(&block)
-    if block == nil then
-      raise "block required"
-    end
+    raise "block required" unless block_given?
     @on_child_start = block
   end
   
@@ -40,9 +38,7 @@ class Forkpool
   #
   # [block] block The block that will be executed upon termination of a child process
   def on_child_exit(&block)
-    if block == nil then
-      raise "block required"
-    end
+    raise "block required" unless block_given?
     @on_child_exit = block
   end
   
@@ -50,9 +46,8 @@ class Forkpool
   #
   # [block] &block The block that will be executed by the child processes
   def start(&block)
-    if block == nil then
-      raise "block required"
-    end
+    raise "block required" unless block_given?
+    
     (@min_forks - @@children.size).times do
       make_child block
     end
@@ -94,6 +89,7 @@ class Forkpool
   # since the loop will die and all children will receive the close() call
   def stop()
     @flag = :exit_loop
+    terminate
   end
 
   # Calls the close method on each child which sets its status to :closed
@@ -111,11 +107,12 @@ class Forkpool
 
   private
 
-  # called by the child process when it's finished the block passed to it
-  def exit_child
-    @on_child_exit.call if defined? @on_child_exit
-    exit!
-  end
+  # # called by the child process when it's finished the block passed to it
+  # def exit_child
+  #   puts defined?(@on_child_exit)
+  #   puts "", "", "exited", "", ""
+  #   exit!
+  # end
 
   # Creates a child process and tells that process to execute a block
   # It also sets up the to and from pipes to be shared between the 
@@ -152,7 +149,7 @@ class Forkpool
     # This signal trapping actually does get handled within the child
     #    since it's called from within the fork method
     handle_signals(["TERM", "INT", "HUP"])
-    @on_child_start.call if defined? @on_child_start
+    @on_child_start.call if(defined?(@on_child_start))
     #Forkpool.logger.debug "c: connect from client"
     @to_parent.syswrite "connect\n"
     begin
@@ -163,7 +160,9 @@ class Forkpool
     end
     #Forkpool.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
-    exit_child
+    @on_child_exit.call if(defined?(@on_child_exit))
+    # puts "\n\n\nEXITING\n\n\n"
+    exit!
   end
   
   # Creates signal traps for the array of signals passed to it

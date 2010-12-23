@@ -36,16 +36,19 @@ describe "Forkpool" do
       f = Forkpool.new(1)
       to_here, from_there = IO.pipe
       f.on_child_exit do
+        puts "\n\n\ncalled block\n\n\n"
         from_there.write "exited_child"
         from_there.close
       end
+      
       Thread.new do
         f.start do
           $0 = "forked"
+          exit
         end
       end
       f.stop
-      sleep 0.5
+      sleep 1.5
       from_there.close
       to_here.read.should == "exited_child"
       to_here.close
@@ -53,13 +56,62 @@ describe "Forkpool" do
   end
   
   describe "#start" do
-    it "should spawn :max_forks processes"
-    it "should set the @flag variable to :in_loop"
-    it "should run the block passed to it in the children forks"
+    it "should spawn :max_forks processes" do
+      f = Forkpool.new(5)
+      Thread.new do
+        f.start do
+          $0 = "forked"
+          sleep 0.5
+        end
+      end
+      sleep 0.1
+     `ps aux |grep forked |grep -v 'grep'`.lines.count.should == 5
+     f.stop
+    end
+    
+    it "should set the @flag variable to :in_loop" do
+      f = Forkpool.new(1)
+      Thread.new do
+        f.start do
+          $0 = "forked"
+          sleep 0.5
+        end
+      end
+      f.flag.should == :in_loop
+      f.stop
+    end
+    
+    it "should run the block passed to it in the children forks" do
+      f = Forkpool.new(1)
+      to_here, from_there = IO.pipe
+      Thread.new do
+        f.start do
+          $0 = "forked"        
+          from_there.write "runned"
+          from_there.close
+          sleep 1
+        end
+      end
+      f.stop
+      sleep 1
+      from_there.close
+      to_here.read.should == "runned"
+      to_here.close
+    end
   end
   
   describe "#stop" do
-    it "should set the @flag variable to :exit_loop"
+    it "should set the @flag variable to :exit_loop" do
+      f = Forkpool.new(1)
+      Thread.new do
+        f.start do
+          $0 = "forked"
+          sleep 0.5
+        end
+      end
+      f.stop
+      f.flag.should == :exit_loop
+    end
   end
    
   describe "#terminate" do
