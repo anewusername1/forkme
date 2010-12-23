@@ -1,12 +1,55 @@
 require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
 describe "Forkpool" do
+  describe "self.logger" do
+    it "should have a logger with info, debug, and error methods" do
+      f = Forkpool.new(1)
+      Forkpool.logger.should respond_to(:info)
+      Forkpool.logger.should respond_to(:debug)
+      Forkpool.logger.should respond_to(:error)
+    end
+  end
+  
   describe "#on_child_start" do
-    it "should accept a block and set the child start instance variable to that block"
+    it "should accept a block and set the child start instance variable to that block" do
+      f = Forkpool.new(1)
+      to_here, from_there = IO.pipe
+      f.on_child_start do
+        from_there.write "started_child"
+        from_there.close
+      end
+      Thread.new do
+        f.start do
+          $0 = "forked"
+          sleep 1
+        end
+      end
+      f.stop
+      from_there.close
+      to_here.read.should == "started_child"
+      to_here.close
+    end
   end
   
   describe "#on_child_exit" do
-    it "should accept a block and set the child exit instance variable to that block"
+    it "should accept a block and set the child exit instance variable to that block" do
+      f = Forkpool.new(1)
+      to_here, from_there = IO.pipe
+      f.on_child_exit do
+        from_there.write "exited_child"
+        from_there.close
+      end
+      Thread.new do
+        f.start do
+          $0 = "forked"
+        end
+      end
+      f.stop
+      sleep 0.5
+      from_there.close
+      to_here.read.should == "exited_child"
+      to_here.close
+    end
   end
   
   describe "#start" do

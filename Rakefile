@@ -4,7 +4,7 @@ require 'echoe'
 
 Echoe.new('forkpool', '0.0.4') do |p|
   p.description    = "Manage a fork pool"
-  p.url            = "http://github.com/pmamediagroup/forkpool"
+  p.url            = "http://github.com/narshlob/forkpool"
   p.author         = "Tracey Eubanks"
   p.email          = "traceye@pmamediagroup.com"
   p.ignore_pattern = ["tmp/*", "script/*"]

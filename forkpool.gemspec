@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email = %q{traceye@pmamediagroup.com}
   s.extra_rdoc_files = ["lib/forkpool.rb"]
   s.files = ["Rakefile", "lib/forkpool.rb", "readme", "Manifest", "forkpool.gemspec"]
-  s.homepage = %q{http://github.com/pmamediagroup/forkpool}
+  s.homepage = %q{http://github.com/narshlob/forkpool}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Forkpool", "--main", "readme"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{forkpool}
