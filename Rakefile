@@ -2,9 +2,9 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-Echoe.new('loompa', '0.0.3') do |p|
+Echoe.new('forkpool', '0.0.3') do |p|
   p.description    = "Manage a fork pool"
-  p.url            = "http://github.com/pmamediagroup/loompa"
+  p.url            = "http://github.com/pmamediagroup/forkpool"
   p.author         = "Tracey Eubanks"
   p.email          = "traceye@pmamediagroup.com"
   p.ignore_pattern = ["tmp/*", "script/*"]

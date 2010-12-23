@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{loompa}
+  s.name = %q{forkpool}
   s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
@@ -9,12 +9,12 @@ Gem::Specification.new do |s|
   s.date = %q{2010-08-03}
   s.description = %q{Manage a fork pool}
   s.email = %q{traceye@pmamediagroup.com}
-  s.extra_rdoc_files = ["lib/loompa.rb"]
-  s.files = ["Rakefile", "lib/loompa.rb", "readme", "Manifest", "loompa.gemspec"]
-  s.homepage = %q{http://github.com/pmamediagroup/loompa}
+  s.extra_rdoc_files = ["lib/forkpool.rb"]
+  s.files = ["Rakefile", "lib/forkpool.rb", "readme", "Manifest", "forkpool.gemspec"]
+  s.homepage = %q{http://github.com/pmamediagroup/forkpool}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Loompa", "--main", "readme"]
   s.require_paths = ["lib"]
-  s.rubyforge_project = %q{loompa}
+  s.rubyforge_project = %q{forkpool}
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Manage a fork pool}
 

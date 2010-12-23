@@ -1,4 +1,4 @@
-gem install loompa
+gem install forkpool
 
 A library for managing forks
 
@@ -7,8 +7,8 @@ If the mother process dies, the children commit suicide. They also accept HUP an
 
 Used like so,
 
-loompa = Loompa.start(num_of_childs, Logger)
-loompa.start do
+forkpool = Loompa.start(num_of_childs, Logger)
+forkpool.start do
   sleep 10
   puts "hey!!!"
 end
@@ -16,15 +16,15 @@ end
 The above code will continuously print "hey!!!". Once the child process has slept 10 seconds and printed "hey!!!" it will die and the mother process will start another to replace it.
 You can start this in a thread if you'd like to have control back after spawning the children.
 Thread.new do
-  loompa.start do
+  forkpool.start do
     ...
   end
 end
 
-If you have to change the number of max forks loompa should spawn, it can be done
-loompa = Loompa.start(num_of_childs, Logger)
-loompa.start do
-  loompa.max_forks = new_num_of_childs
+If you have to change the number of max forks forkpool should spawn, it can be done
+forkpool = Loompa.start(num_of_childs, Logger)
+forkpool.start do
+  forkpool.max_forks = new_num_of_childs
   sleep 10
   ...do something...
 end

@@ -1,4 +1,4 @@
 Rakefile
-lib/loompa.rb
+lib/forkpool.rb
 readme
 Manifest
