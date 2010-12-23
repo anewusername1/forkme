@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{forkpool}
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tracey Eubanks"]
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["lib/forkpool.rb"]
   s.files = ["Rakefile", "lib/forkpool.rb", "readme", "Manifest", "forkpool.gemspec"]
   s.homepage = %q{http://github.com/pmamediagroup/forkpool}
-  s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Loompa", "--main", "readme"]
+  s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Forkpool", "--main", "readme"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{forkpool}
   s.rubygems_version = %q{1.3.7}

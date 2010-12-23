@@ -1,6 +1,6 @@
 require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
-describe "Loompa" do
+describe "Forkpool" do
   describe "#on_child_start" do
     it "should accept a block and set the child start instance variable to that block"
   end

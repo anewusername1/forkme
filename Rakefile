@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-Echoe.new('forkpool', '0.0.3') do |p|
+Echoe.new('forkpool', '0.0.4') do |p|
   p.description    = "Manage a fork pool"
   p.url            = "http://github.com/pmamediagroup/forkpool"
   p.author         = "Tracey Eubanks"

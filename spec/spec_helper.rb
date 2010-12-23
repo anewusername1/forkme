@@ -1,7 +1,7 @@
 require 'spec'
 require File.expand_path(File.join("..", "lib", "forkpool.rb"), File.dirname(__FILE__))
 
-class Child < Loompa
+class Child < Forkpool
   attr_accessor :status
 end
 

@@ -1,4 +1,4 @@
-class Loompa 
+class Forkpool
   include DefaultLogger
   attr_reader :child_count
 
@@ -19,7 +19,7 @@ class Loompa
   def initialize(forks_to_run, log_method = DefaultLogger)
     @min_forks = 1
     @max_forks = forks_to_run
-    Loompa.logger = log_method
+    Forkpool.logger = log_method
   end
   
   # class variable holding all the children
@@ -81,7 +81,7 @@ class Loompa
       if as + n > @max_forks then
         n = @max_forks - as
       end
-      #Loompa.logger.debug "p: max:#{@max_forks}, min:#{@min_forks}, cur:#{as}, idle:#{@@children.idle.size}: new:#{n}" if n > 0 or log
+      #Forkpool.logger.debug "p: max:#{@max_forks}, min:#{@min_forks}, cur:#{as}, idle:#{@@children.idle.size}: new:#{n}" if n > 0 or log
       n.times do
       	make_child block
       end
@@ -123,7 +123,7 @@ class Loompa
   #
   # [block] block The block to be executed by the child
   def make_child(block)
-    #Loompa.logger.debug "p: make child"
+    #Forkpool.logger.debug "p: make child"
     to_child = IO.pipe
     to_parent = IO.pipe
     pid = fork do
@@ -137,7 +137,7 @@ class Loompa
       to_parent[0].close
       child block
     end
-    #Loompa.logger.debug "p: child pid #{pid}"
+    #Forkpool.logger.debug "p: child pid #{pid}"
     @@children << Child.new(pid, to_parent[0], to_child[1])
     to_child[0].close
     to_parent[1].close
@@ -147,21 +147,21 @@ class Loompa
   #
   # [block] the block that will be called within the child process
   def child(block)
-    #Loompa.logger.debug "c: start"
+    #Forkpool.logger.debug "c: start"
     # Handle these different signals the child might encounter
     # This signal trapping actually does get handled within the child
     #    since it's called from within the fork method
     handle_signals(["TERM", "INT", "HUP"])
     @on_child_start.call if defined? @on_child_start
-    #Loompa.logger.debug "c: connect from client"
+    #Forkpool.logger.debug "c: connect from client"
     @to_parent.syswrite "connect\n"
     begin
       block.call
     rescue => e
-      Loompa.logger.error e.message
-      Loompa.logger.error e.backtrace.join("\n")
+      Forkpool.logger.error e.message
+      Forkpool.logger.error e.backtrace.join("\n")
     end
-    #Loompa.logger.debug "c: disconnect from client"
+    #Forkpool.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
     exit_child
   end

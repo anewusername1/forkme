@@ -27,7 +27,7 @@ class Children < Array
     self.each do |c|
       begin
         if Process.waitpid(c.pid, Process::WNOHANG) then
-          #Loompa.logger.debug "p: catch exited child #{c.pid}"
+          #Forkpool.logger.debug "p: catch exited child #{c.pid}"
           c.exit
         else
           new << c

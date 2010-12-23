@@ -1,4 +1,4 @@
-class Child < Loompa
+class Child < Forkpool
   def initialize(pid, from, to)
     @pid, @from, @to = pid, from, to
     @status = :idle
@@ -9,7 +9,7 @@ class Child < Loompa
 
   def event(s)
     if s == nil then
-      #Loompa.logger.debug "p: child #{pid} terminated"
+      #Forkpool.logger.debug "p: child #{pid} terminated"
       self.exit
     else
       case s.chomp
@@ -17,7 +17,7 @@ class Child < Loompa
       when "disconnect" then @status = :idle
       else
         begin
-          Loompa.logger.error "unknown status: #{s}"
+          Forkpool.logger.error "unknown status: #{s}"
         rescue NoMethodError
         end
         
