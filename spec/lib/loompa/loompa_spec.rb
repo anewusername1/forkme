@@ -1,16 +1,12 @@
 require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
 describe "Loompa" do
-  describe "self.logger" do
-    it "should print to stdout for :info, :debug, and :error"
-  end
-  
   describe "#on_child_start" do
-    it "should accept a block and set the instance variable to that block"
+    it "should accept a block and set the child start instance variable to that block"
   end
   
   describe "#on_child_exit" do
-    it "should accept a block and set the instance variable to that block"
+    it "should accept a block and set the child exit instance variable to that block"
   end
   
   describe "#start" do
@@ -22,7 +18,7 @@ describe "Loompa" do
   describe "#stop" do
     it "should set the @flag variable to :exit_loop"
   end
-  
+   
   describe "#terminate" do
     it "should raise an error if called while still in the loop"
     it "should close all IO connections"
