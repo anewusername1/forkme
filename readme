@@ -29,5 +29,11 @@ forkpool.start do
   ...do something...
 end
 
-Have fun and enjoy :]
+
+You can also change the process name by doing the following:
+f = Forkpool.new(20)
+f.start do
+  $0 = "child process #{Time.now.to_i}"
+  ...
+end
 
