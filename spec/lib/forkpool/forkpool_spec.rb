@@ -25,6 +25,7 @@ describe "Forkpool" do
         end
       end
       f.stop
+      # sleep 0.5
       from_there.close
       to_here.read.should == "started_child"
       to_here.close
@@ -36,7 +37,6 @@ describe "Forkpool" do
       f = Forkpool.new(1)
       to_here, from_there = IO.pipe
       f.on_child_exit do
-        puts "\n\n\ncalled block\n\n\n"
         from_there.write "exited_child"
         from_there.close
       end
@@ -44,11 +44,11 @@ describe "Forkpool" do
       Thread.new do
         f.start do
           $0 = "forked"
-          exit
+          sleep 1
         end
       end
       f.stop
-      sleep 1.5
+      sleep 0.5
       from_there.close
       to_here.read.should == "exited_child"
       to_here.close
@@ -64,7 +64,7 @@ describe "Forkpool" do
           sleep 0.5
         end
       end
-      sleep 0.1
+      sleep 1
      `ps aux |grep forked |grep -v 'grep'`.lines.count.should == 5
      f.stop
     end
@@ -86,14 +86,14 @@ describe "Forkpool" do
       to_here, from_there = IO.pipe
       Thread.new do
         f.start do
-          $0 = "forked"        
+          $0 = "forked"
+          to_here.close
           from_there.write "runned"
-          from_there.close
           sleep 1
         end
       end
       f.stop
-      sleep 1
+      # sleep 1
       from_there.close
       to_here.read.should == "runned"
       to_here.close
@@ -129,10 +129,20 @@ describe "Forkpool" do
   end
   
   describe "#child" do
-    it "should create a new process and execute the passed block"
+    it "should execute the passed block" do
+      blah = :one
+      f = Forkpool.new(1)
+      blk = Proc.new { blah = :two }
+      f.send(:child, blk)
+      blah.should == :two
+    end
   end
   
   describe "#handle_signals" do
-    it "should accept an array of signals to trap and.. trap them"
+    it "should accept an array of signals to trap and.. trap them" do
+      f = Forkpool.new(1)
+      f.expects(:trap)
+      f.send(:handle_signals, ["TERM"])
+    end
   end
 end

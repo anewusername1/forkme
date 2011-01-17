@@ -107,12 +107,10 @@ class Forkpool
 
   private
 
-  # # called by the child process when it's finished the block passed to it
-  # def exit_child
-  #   puts defined?(@on_child_exit)
-  #   puts "", "", "exited", "", ""
-  #   exit!
-  # end
+  # called by the child process when it's finished the block passed to it
+  def exit_child
+    exit!
+  end
 
   # Creates a child process and tells that process to execute a block
   # It also sets up the to and from pipes to be shared between the 
@@ -132,7 +130,9 @@ class Forkpool
       @to_parent = to_parent[1]
       to_child[1].close
       to_parent[0].close
+      
       child block
+      exit_child
     end
     #Forkpool.logger.debug "p: child pid #{pid}"
     @@children << Child.new(pid, to_parent[0], to_child[1])
@@ -149,9 +149,9 @@ class Forkpool
     # This signal trapping actually does get handled within the child
     #    since it's called from within the fork method
     handle_signals(["TERM", "INT", "HUP"])
-    @on_child_start.call if(defined?(@on_child_start))
     #Forkpool.logger.debug "c: connect from client"
     @to_parent.syswrite "connect\n"
+    @on_child_start.call if(defined?(@on_child_start))
     begin
       block.call
     rescue => e
@@ -161,8 +161,6 @@ class Forkpool
     #Forkpool.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
     @on_child_exit.call if(defined?(@on_child_exit))
-    # puts "\n\n\nEXITING\n\n\n"
-    exit!
   end
   
   # Creates signal traps for the array of signals passed to it
