@@ -1,6 +1,13 @@
 require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
 describe "Forkpool" do
+  before(:each) do
+    Forkpool.children.each do |c|
+      Process.kill "KILL", c.pid
+      Process.wait c.pid rescue ""
+    end
+  end
+
   describe "self.logger" do
     it "should have a logger with info, debug, and error methods" do
       f = Forkpool.new(1)
@@ -107,6 +114,7 @@ describe "Forkpool" do
 
     after(:each) do
       @fp.stop
+      @fp = nil
     end
 
     it "should raise an error if called while still in the loop" do
@@ -115,8 +123,7 @@ describe "Forkpool" do
 
     it "should close all IO connections" do
       @fp.stop
-      sleep 10
-      @fp.children.each do |c|
+      Forkpool.children.each do |c|
         c.status.should == :close
       end
     end

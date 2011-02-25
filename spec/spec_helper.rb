@@ -11,7 +11,7 @@ class Forkpool
   attr_reader :flag, :children
   attr_accessor :on_child_start_blk, :on_child_exit_blk
 
-  def children
+  def self.children
     @@children
   end
 end
