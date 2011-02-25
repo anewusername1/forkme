@@ -2,10 +2,8 @@ require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(
 
 describe "Forkpool" do
   before(:each) do
-    Forkpool.children.each do |c|
-      Process.kill "KILL", c.pid
-      Process.wait c.pid rescue ""
-    end
+    Process.kill "KILL", *(Forkpool.children.pids) rescue nil
+    Process.wait *(Forkpool.children.pids) rescue ""
   end
 
   describe "self.logger" do
@@ -17,7 +15,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#on_child_start" do
+  describe ".on_child_start" do
     it "should accept a block and set the child start instance variable to that block" do
       to_change = "one"
       f = Forkpool.new(1)
@@ -29,7 +27,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#on_child_exit" do
+  describe ".on_child_exit" do
     it "should accept a block and set the child exit instance variable to that block" do
       to_change = "one"
       f = Forkpool.new(1)
@@ -41,7 +39,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#start" do
+  describe ".start" do
     it "should spawn :max_forks processes" do
       FileUtils.rm("/tmp/fork_tests")
       f = Forkpool.new(5)
@@ -87,7 +85,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#stop" do
+  describe ".stop" do
     it "should set the @flag variable to :exit_loop" do
       f = Forkpool.new(1)
       Thread.new do
@@ -101,7 +99,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#terminate" do
+  describe ".terminate" do
     before(:each) do
       @fp = Forkpool.new(1)
       Thread.new do
@@ -129,16 +127,29 @@ describe "Forkpool" do
     end
   end
 
-  describe "#interrupt" do
-    it "should send the TERM signal to all childrens"
+  describe ".interrupt" do
+    it "should send the TERM signal to all childrens" do
+      f = Forkpool.new(1)
+      Thread.new do
+        f.start do
+          sleep 1
+        end
+      end
+      sleep 0.5
+      f.interrupt
+      Process.waitall
+      # sleep 4
+      Forkpool.children.each do |c|
+        `ps -o command,pid | grep #{c.pid} |grep -v grep`.should == ""
+      end
+    end
   end
 
-  describe "#make_child" do
-    it "should connect the child and parent processes together through IOs"
-    it "should create a new child and execute the block"
+  # tested via setting child process statuses
+  describe ".make_child" do
   end
 
-  describe "#child" do
+  describe ".child" do
     it "should execute the passed block" do
       blah = :one
       nil.expects(:syswrite).at_least(2)
@@ -149,7 +160,7 @@ describe "Forkpool" do
     end
   end
 
-  describe "#handle_signals" do
+  describe ".handle_signals" do
     it "should accept an array of signals to trap and.. trap them" do
       f = Forkpool.new(1)
       f.expects(:trap)
