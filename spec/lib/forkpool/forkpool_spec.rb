@@ -9,66 +9,48 @@ describe "Forkpool" do
       Forkpool.logger.should respond_to(:error)
     end
   end
-  
+
   describe "#on_child_start" do
     it "should accept a block and set the child start instance variable to that block" do
+      to_change = "one"
       f = Forkpool.new(1)
-      to_here, from_there = IO.pipe
       f.on_child_start do
-        from_there.write "started_child"
-        from_there.close
+        to_change = "two"
       end
-      Thread.new do
-        f.start do
-          $0 = "forked"
-          sleep 1
-        end
-      end
-      f.stop
-      # sleep 0.5
-      from_there.close
-      to_here.read.should == "started_child"
-      to_here.close
+      f.on_child_start_blk.call
+      to_change.should == "two"
     end
   end
-  
+
   describe "#on_child_exit" do
     it "should accept a block and set the child exit instance variable to that block" do
+      to_change = "one"
       f = Forkpool.new(1)
-      to_here, from_there = IO.pipe
       f.on_child_exit do
-        from_there.write "exited_child"
-        from_there.close
+        to_change = "two"
       end
-      
-      Thread.new do
-        f.start do
-          $0 = "forked"
-          sleep 1
-        end
-      end
-      f.stop
-      sleep 0.5
-      from_there.close
-      to_here.read.should == "exited_child"
-      to_here.close
+      f.on_child_exit_blk.call
+      to_change.should == "two"
     end
   end
-  
+
   describe "#start" do
     it "should spawn :max_forks processes" do
+      FileUtils.rm("/tmp/fork_tests")
       f = Forkpool.new(5)
       Thread.new do
         f.start do
-          $0 = "forked"
-          sleep 0.5
+          test_file = File.new("/tmp/fork_tests", "a+")
+          test_file.puts "anewline"
+          test_file.close
+          sleep 1
         end
       end
+      f.stop
       sleep 1
-     `ps aux |grep forked |grep -v 'grep'`.lines.count.should == 5
-     f.stop
+      File.readlines("/tmp/fork_tests").size.should == 5
     end
-    
+
     it "should set the @flag variable to :in_loop" do
       f = Forkpool.new(1)
       Thread.new do
@@ -77,29 +59,27 @@ describe "Forkpool" do
           sleep 0.5
         end
       end
+      sleep 1
       f.flag.should == :in_loop
       f.stop
     end
-    
+
     it "should run the block passed to it in the children forks" do
+      FileUtils.rm("/tmp/newf") if(File.exists?("/tmp/newf"))
       f = Forkpool.new(1)
-      to_here, from_there = IO.pipe
       Thread.new do
         f.start do
           $0 = "forked"
-          to_here.close
-          from_there.write "runned"
-          sleep 1
+          FileUtils.touch "/tmp/newf"
+          sleep 3
         end
       end
       f.stop
-      # sleep 1
-      from_there.close
-      to_here.read.should == "runned"
-      to_here.close
+      sleep 3
+      File.exists?("/tmp/newf").should == true
     end
   end
-  
+
   describe "#stop" do
     it "should set the @flag variable to :exit_loop" do
       f = Forkpool.new(1)
@@ -113,31 +93,55 @@ describe "Forkpool" do
       f.flag.should == :exit_loop
     end
   end
-   
+
   describe "#terminate" do
-    it "should raise an error if called while still in the loop"
-    it "should close all IO connections"
+    before(:each) do
+      @fp = Forkpool.new(1)
+      Thread.new do
+        @fp.start do
+          sleep 1
+        end
+      end
+      sleep 1
+    end
+
+    after(:each) do
+      @fp.stop
+    end
+
+    it "should raise an error if called while still in the loop" do
+      lambda {@fp.terminate}.should raise_error(RuntimeError)
+    end
+
+    it "should close all IO connections" do
+      @fp.stop
+      sleep 10
+      @fp.children.each do |c|
+        c.status.should == :close
+      end
+    end
   end
-  
+
   describe "#interrupt" do
     it "should send the TERM signal to all childrens"
   end
-  
+
   describe "#make_child" do
     it "should connect the child and parent processes together through IOs"
     it "should create a new child and execute the block"
   end
-  
+
   describe "#child" do
     it "should execute the passed block" do
       blah = :one
+      nil.expects(:syswrite).at_least(2)
       f = Forkpool.new(1)
       blk = Proc.new { blah = :two }
       f.send(:child, blk)
       blah.should == :two
     end
   end
-  
+
   describe "#handle_signals" do
     it "should accept an array of signals to trap and.. trap them" do
       f = Forkpool.new(1)

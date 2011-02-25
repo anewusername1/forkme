@@ -20,7 +20,7 @@ class Child < Forkpool
           Forkpool.logger.error "unknown status: #{s}"
         rescue NoMethodError
         end
-        
+
         return "unknown status: #{s}"
       end
     end

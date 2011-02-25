@@ -2,52 +2,52 @@ class Forkpool
   include DefaultLogger
   attr_reader :child_count
 
-  attr_writer :on_child_start, :on_child_exit, :max_forks
-  
+  attr_writer :on_child_start_blk, :on_child_exit_blk, :max_forks
+
   # These class methods actually set up the logger that's used
   # to print out useful information
   class << self
     def logger
       @logger
     end
-    
+
     def logger=(log_meth)
       @logger = log_meth
     end
   end
-  
+
   def initialize(forks_to_run, log_method = DefaultLogger)
     @min_forks = 1
     @max_forks = forks_to_run
     Forkpool.logger = log_method
   end
-  
+
   # class variable holding all the children
   @@children = Children.new
-  
+
   # A block to be executed just before calling the block a child
   # will be executing
   #
   # [block] block The block that will be executed
   def on_child_start(&block)
     raise "block required" unless block_given?
-    @on_child_start = block
+    @on_child_start_blk = block
   end
-  
+
   # A block to be executed upon exiting a child process.
   #
   # [block] block The block that will be executed upon termination of a child process
   def on_child_exit(&block)
     raise "block required" unless block_given?
-    @on_child_exit = block
+    @on_child_exit_blk = block
   end
-  
+
   # Starts the child processes, the number of which is determined by the @max_forks variable
   #
   # [block] &block The block that will be executed by the child processes
   def start(&block)
     raise "block required" unless block_given?
-    
+
     (@min_forks - @@children.size).times do
       make_child block
     end
@@ -78,7 +78,7 @@ class Forkpool
       end
       #Forkpool.logger.debug "p: max:#{@max_forks}, min:#{@min_forks}, cur:#{as}, idle:#{@@children.idle.size}: new:#{n}" if n > 0 or log
       n.times do
-      	make_child block
+        make_child block
       end
     end
     @flag = :out_of_loop
@@ -113,7 +113,7 @@ class Forkpool
   end
 
   # Creates a child process and tells that process to execute a block
-  # It also sets up the to and from pipes to be shared between the 
+  # It also sets up the to and from pipes to be shared between the
   # parent and child processes.
   #
   # [block] block The block to be executed by the child
@@ -130,7 +130,7 @@ class Forkpool
       @to_parent = to_parent[1]
       to_child[1].close
       to_parent[0].close
-      
+
       child block
       exit_child
     end
@@ -139,7 +139,7 @@ class Forkpool
     to_child[0].close
     to_parent[1].close
   end
-  
+
   # Method to call the block that's been passed to it
   #
   # [block] the block that will be called within the child process
@@ -151,7 +151,7 @@ class Forkpool
     handle_signals(["TERM", "INT", "HUP"])
     #Forkpool.logger.debug "c: connect from client"
     @to_parent.syswrite "connect\n"
-    @on_child_start.call if(defined?(@on_child_start))
+    @on_child_start_blk.call if(defined?(@on_child_start_blk))
     begin
       block.call
     rescue => e
@@ -160,9 +160,9 @@ class Forkpool
     end
     #Forkpool.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
-    @on_child_exit.call if(defined?(@on_child_exit))
+    @on_child_exit_blk.call if(defined?(@on_child_exit_blk))
   end
-  
+
   # Creates signal traps for the array of signals passed to it
   #
   # [Array] sigs The signals that will be trapped
