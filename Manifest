@@ -1,4 +1,4 @@
 Rakefile
-lib/forkpool.rb
+lib/forkme.rb
 readme
 Manifest

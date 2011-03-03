@@ -1,7 +1,7 @@
 require 'rspec'
 require 'fileutils'
 # require 'fakefs'
-require File.expand_path(File.join("..", "lib", "forkpool.rb"), File.dirname(__FILE__))
+require File.expand_path(File.join("..", "lib", "forkme.rb"), File.dirname(__FILE__))
 
 class Child < Forkpool
   attr_accessor :status

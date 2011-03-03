@@ -3,9 +3,9 @@ require 'rake'
 require 'echoe'
 require 'rspec/core/rake_task'
 
-# Echoe.new('forkpool', '0.0.5') do |p|
+# Echoe.new('forkme', '0.0.5') do |p|
   # p.description    = "Manage a fork pool"
-  # p.url            = "http://github.com/narshlob/forkpool"
+  # p.url            = "http://github.com/narshlob/forkme"
   # p.author         = "Tracey Eubanks"
   # p.email          = "traceye@pmamediagroup.com"
   # p.ignore_pattern = ["tmp/*", "script/*"]
