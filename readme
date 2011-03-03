@@ -7,7 +7,7 @@ If the mother process dies, the children commit suicide. They also accept HUP an
 
 Used like so,
 
-forkme = Forkpool.start(num_of_childs, Logger)
+forkme = Forkme.start(num_of_childs, Logger)
 forkme.start do
   sleep 10
   puts "hey!!!"
@@ -22,7 +22,7 @@ Thread.new do
 end
 
 If you have to change the number of max forks forkme should spawn, it can be done
-forkme = Forkpool.start(num_of_childs, Logger)
+forkme = Forkme.start(num_of_childs, Logger)
 forkme.start do
   forkme.max_forks = new_num_of_childs
   sleep 10

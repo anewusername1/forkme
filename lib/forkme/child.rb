@@ -1,4 +1,4 @@
-class Child < Forkpool
+class Child < Forkme
   def initialize(pid, from, to)
     @pid, @from, @to = pid, from, to
     @status = :idle
@@ -9,7 +9,7 @@ class Child < Forkpool
 
   def event(s)
     if s == nil then
-      #Forkpool.logger.debug "p: child #{pid} terminated"
+      #Forkme.logger.debug "p: child #{pid} terminated"
       self.exit
     else
       case s.chomp
@@ -17,7 +17,7 @@ class Child < Forkpool
       when "disconnect" then @status = :idle
       else
         begin
-          Forkpool.logger.error "unknown status: #{s}"
+          Forkme.logger.error "unknown status: #{s}"
         rescue NoMethodError
         end
 

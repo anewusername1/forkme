@@ -2,7 +2,7 @@
 # http://www.tmtm.org/ruby/tserver/
 
 require 'socket'
-require File.expand_path(File.join("forkpool", "default_logger"), File.dirname(__FILE__))
-require File.expand_path(File.join("forkpool", "children"), File.dirname(__FILE__))
-require File.expand_path(File.join("forkpool", "forkpool"), File.dirname(__FILE__))
-require File.expand_path(File.join("forkpool", "child"), File.dirname(__FILE__))
+require File.expand_path(File.join("forkme", "default_logger"), File.dirname(__FILE__))
+require File.expand_path(File.join("forkme", "children"), File.dirname(__FILE__))
+require File.expand_path(File.join("forkme", "forkme"), File.dirname(__FILE__))
+require File.expand_path(File.join("forkme", "child"), File.dirname(__FILE__))
