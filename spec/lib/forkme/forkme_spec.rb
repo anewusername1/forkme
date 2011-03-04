@@ -1,24 +1,24 @@
 require File.expand_path(File.join('..', '..', '/spec_helper.rb'), File.dirname(__FILE__))
 
-describe "Forkpool" do
+describe "Forkme" do
   before(:each) do
-    Process.kill "KILL", *(Forkpool.children.pids) rescue nil
-    Process.wait *(Forkpool.children.pids) rescue ""
+    Process.kill "KILL", *(Forkme.children.pids) rescue nil
+    Process.wait *(Forkme.children.pids) rescue ""
   end
 
   describe "self.logger" do
     it "should have a logger with info, debug, and error methods" do
-      f = Forkpool.new(1)
-      Forkpool.logger.should respond_to(:info)
-      Forkpool.logger.should respond_to(:debug)
-      Forkpool.logger.should respond_to(:error)
+      f = Forkme.new(1)
+      Forkme.logger.should respond_to(:info)
+      Forkme.logger.should respond_to(:debug)
+      Forkme.logger.should respond_to(:error)
     end
   end
 
   describe ".on_child_start" do
     it "should accept a block and set the child start instance variable to that block" do
       to_change = "one"
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       f.on_child_start do
         to_change = "two"
       end
@@ -30,7 +30,7 @@ describe "Forkpool" do
   describe ".on_child_exit" do
     it "should accept a block and set the child exit instance variable to that block" do
       to_change = "one"
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       f.on_child_exit do
         to_change = "two"
       end
@@ -42,7 +42,7 @@ describe "Forkpool" do
   describe ".start" do
     it "should spawn :max_forks processes" do
       FileUtils.rm("/tmp/fork_tests")
-      f = Forkpool.new(5)
+      f = Forkme.new(5)
       Thread.new do
         f.start do
           test_file = File.new("/tmp/fork_tests", "a+")
@@ -57,7 +57,7 @@ describe "Forkpool" do
     end
 
     it "should set the @flag variable to :in_loop" do
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       Thread.new do
         f.start do
           $0 = "forked"
@@ -71,7 +71,7 @@ describe "Forkpool" do
 
     it "should run the block passed to it in the children forks" do
       FileUtils.rm("/tmp/newf") if(File.exists?("/tmp/newf"))
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       Thread.new do
         f.start do
           $0 = "forked"
@@ -87,7 +87,7 @@ describe "Forkpool" do
 
   describe ".stop" do
     it "should set the @flag variable to :exit_loop" do
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       Thread.new do
         f.start do
           $0 = "forked"
@@ -101,7 +101,7 @@ describe "Forkpool" do
 
   describe ".terminate" do
     before(:each) do
-      @fp = Forkpool.new(1)
+      @fp = Forkme.new(1)
       Thread.new do
         @fp.start do
           sleep 1
@@ -121,7 +121,7 @@ describe "Forkpool" do
 
     it "should close all IO connections" do
       @fp.stop
-      Forkpool.children.each do |c|
+      Forkme.children.each do |c|
         c.status.should == :close
       end
     end
@@ -129,7 +129,7 @@ describe "Forkpool" do
 
   describe ".interrupt" do
     it "should send the TERM signal to all childrens" do
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       Thread.new do
         f.start do
           sleep 1
@@ -139,7 +139,7 @@ describe "Forkpool" do
       f.interrupt
       Process.waitall
       # sleep 4
-      Forkpool.children.each do |c|
+      Forkme.children.each do |c|
         `ps -o command,pid | grep #{c.pid} |grep -v grep`.should == ""
       end
     end
@@ -153,7 +153,7 @@ describe "Forkpool" do
     it "should execute the passed block" do
       blah = :one
       nil.expects(:syswrite).at_least(2)
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       blk = Proc.new { blah = :two }
       f.send(:child, blk)
       blah.should == :two
@@ -162,7 +162,7 @@ describe "Forkpool" do
 
   describe ".handle_signals" do
     it "should accept an array of signals to trap and.. trap them" do
-      f = Forkpool.new(1)
+      f = Forkme.new(1)
       f.expects(:trap)
       f.send(:handle_signals, ["TERM"])
     end

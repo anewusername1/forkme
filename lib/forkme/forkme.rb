@@ -1,7 +1,7 @@
-class Forkpool
+class Forkme
   include DefaultLogger
   attr_reader :child_count
-
+  attr_accessor :suppress_exceptions
   attr_writer :on_child_start_blk, :on_child_exit_blk, :max_forks
 
   # These class methods actually set up the logger that's used
@@ -16,10 +16,11 @@ class Forkpool
     end
   end
 
-  def initialize(forks_to_run, log_method = DefaultLogger)
+  def initialize(forks_to_run, suppress_exceptions = false, log_method = DefaultLogger)
     @min_forks = 1
     @max_forks = forks_to_run
-    Forkpool.logger = log_method
+    @suppress_exceptions = suppress_exceptions
+    Forkme.logger = log_method
   end
 
   # class variable holding all the children
@@ -76,7 +77,7 @@ class Forkpool
       if as + n > @max_forks then
         n = @max_forks - as
       end
-      #Forkpool.logger.debug "p: max:#{@max_forks}, min:#{@min_forks}, cur:#{as}, idle:#{@@children.idle.size}: new:#{n}" if n > 0 or log
+      #Forkme.logger.debug "p: max:#{@max_forks}, min:#{@min_forks}, cur:#{as}, idle:#{@@children.idle.size}: new:#{n}" if n > 0 or log
       n.times do
         make_child block
       end
@@ -118,7 +119,7 @@ class Forkpool
   #
   # [block] block The block to be executed by the child
   def make_child(block)
-    #Forkpool.logger.debug "p: make child"
+    #Forkme.logger.debug "p: make child"
     to_child = IO.pipe
     to_parent = IO.pipe
     pid = fork do
@@ -134,7 +135,7 @@ class Forkpool
       child block
       exit_child
     end
-    #Forkpool.logger.debug "p: child pid #{pid}"
+    #Forkme.logger.debug "p: child pid #{pid}"
     @@children << Child.new(pid, to_parent[0], to_child[1])
     to_child[0].close
     to_parent[1].close
@@ -144,21 +145,21 @@ class Forkpool
   #
   # [block] the block that will be called within the child process
   def child(block)
-    #Forkpool.logger.debug "c: start"
+    #Forkme.logger.debug "c: start"
     # Handle these different signals the child might encounter
     # This signal trapping actually does get handled within the child
     #    since it's called from within the fork method
     handle_signals(["TERM", "INT", "HUP"])
-    #Forkpool.logger.debug "c: connect from client"
+    #Forkme.logger.debug "c: connect from client"
     @to_parent.syswrite "connect\n"
     @on_child_start_blk.call if(defined?(@on_child_start_blk))
     begin
       block.call
     rescue => e
-      Forkpool.logger.error e.message
-      Forkpool.logger.error e.backtrace.join("\n")
+      Forkme.logger.error e.message
+      Forkme.logger.error e.backtrace.join("\n")
     end
-    #Forkpool.logger.debug "c: disconnect from client"
+    #Forkme.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
     @on_child_exit_blk.call if(defined?(@on_child_exit_blk))
   end
