@@ -21,14 +21,14 @@ describe 'DefaultLogger' do
   describe "#info" do
     it "should print some info" do
       DefaultLogger.info "infoed"
-      @sio.string.should == "infoed\n"
+      @sio.string.should == "erred\ninfoed\n"
     end
   end
 
   describe "#debug" do
     it "should print some debug info" do
       DefaultLogger.debug "debugged"
-      @sio.string.should == "debugged\n"
+      @sio.string.should == "erred\ninfoed\ndebugged\n"
     end
   end
 

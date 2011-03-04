@@ -41,7 +41,7 @@ describe "Forkme" do
 
   describe ".start" do
     it "should spawn :max_forks processes" do
-      FileUtils.rm("/tmp/fork_tests")
+      FileUtils.rm("/tmp/fork_tests") rescue nil
       f = Forkme.new(5)
       Thread.new do
         f.start do
