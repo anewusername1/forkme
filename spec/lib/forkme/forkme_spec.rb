@@ -145,7 +145,7 @@ describe "Forkme" do
     end
   end
 
-  # tested via setting child process statuses
+  # mostly tested via setting child process statuses
   describe ".make_child" do
   end
 
@@ -157,6 +157,34 @@ describe "Forkme" do
       blk = Proc.new { blah = :two }
       f.send(:child, blk)
       blah.should == :two
+    end
+
+    context "suppress_exceptions is false" do
+      it "should raise" do
+        nil.stubs(:syswrite)
+        f = Forkme.new(1, false)
+        blk = Proc.new{sleep 0.5; raise "yo"}
+        begin
+          f.send(:child, blk)
+        rescue => e
+          error_class = e.class
+        end
+        error_class.should == RuntimeError
+      end
+    end
+
+    context "suppress_exceptions is true" do
+      it "should not raise" do
+        nil.stubs(:syswrite)
+        f = Forkme.new(1, true)
+        blk = Proc.new{sleep 0.5; raise "yo"}
+        begin
+          f.send(:child, blk)
+        rescue => e
+          error_class = e.class
+        end
+        error_class.should == nil
+      end
     end
   end
 

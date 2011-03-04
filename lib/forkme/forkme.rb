@@ -156,8 +156,11 @@ class Forkme
     begin
       block.call
     rescue => e
-      Forkme.logger.error e.message
-      Forkme.logger.error e.backtrace.join("\n")
+      unless(@suppress_exceptions)
+        Forkme.logger.error e.message
+        Forkme.logger.error e.backtrace.join("\n")
+        raise e
+      end
     end
     #Forkme.logger.debug "c: disconnect from client"
     @to_parent.syswrite "disconnect\n" rescue nil
