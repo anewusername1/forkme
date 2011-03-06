@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{forkme}
-  s.version = "0.0.6"
+  s.version = "0.0.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tracey Eubanks"]
@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = %q{Manage a fork pool}
   s.email = %q{traceye@pmamediagroup.com}
   s.extra_rdoc_files = ["lib/forkme.rb"]
-  s.files = ["Rakefile", "lib/forkme.rb", "readme", "Manifest", "forkme.gemspec", "lib/forkme/child.rb", "lib/forkme/children.rb", "lib/forkme/default_logger.rb"]
+  s.files = ["Rakefile", "lib/forkme.rb", "readme", "Manifest", "forkme.gemspec", "lib/forkme/child.rb", "lib/forkme/children.rb", "lib/forkme/default_logger.rb", "lib/forkme/forkme.rb"]
   s.homepage = %q{http://github.com/narshlob/forkme}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Forkme", "--main", "readme"]
   s.require_paths = ["lib"]
