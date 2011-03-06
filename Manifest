@@ -1,4 +1,8 @@
 Rakefile
 lib/forkme.rb
+lib/forkme/child.rb
+lib/forkme/children.rb
+lib/forkme/default_logger.rb
+lib/forkme/forkme.rb
 readme
 Manifest
