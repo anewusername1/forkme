@@ -16,6 +16,10 @@ class Forkme
     end
   end
 
+  def self.start(forks_to_run, suppress_exceptions = false, log_method = DefaultLogger, &block)
+    self.new(forks_to_run, suppress_exceptions, log_method).start(block)
+  end
+
   def initialize(forks_to_run, suppress_exceptions = false, log_method = DefaultLogger)
     @min_forks = 1
     @max_forks = forks_to_run
